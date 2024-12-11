@@ -1,5 +1,4 @@
-# Scene![A_minimalist_and_modern_software_icon_featuring_a_](https://github.com/user-attachments/assets/528c7f15-96cb-497d-8a37-96db53d1bc39)
- Dialogue Language Learning
+# Scene Dialogue Language Learning <img src="assets/logo.png" width="40">
 
 An interactive language learning application that uses AI-generated scene-based dialogues to help users practice real-world conversations.
 
@@ -16,11 +15,11 @@ This project combines practical scenario-based learning with AI technology to cr
 
 ## Tech Stack
 
-- Next.js
-- TypeScript
-- Prisma
-- MySQL
-- OpenAI API
+![Next.js](https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=next.js&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
+![Prisma](https://img.shields.io/badge/Prisma-2D3748?style=for-the-badge&logo=prisma&logoColor=white)
+![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white)
+![OpenAI](https://img.shields.io/badge/OpenAI-412991?style=for-the-badge&logo=openai&logoColor=white)
 
 ## License
 
