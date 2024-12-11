@@ -1,4 +1,5 @@
-# Scene Dialogue Language Learning
+# Scene![A_minimalist_and_modern_software_icon_featuring_a_](https://github.com/user-attachments/assets/528c7f15-96cb-497d-8a37-96db53d1bc39)
+ Dialogue Language Learning
 
 An interactive language learning application that uses AI-generated scene-based dialogues to help users practice real-world conversations.
 
