@@ -1,3 +1,4 @@
+
 # <img src="assets/icon.png" width="40"> Scene Dialogue Language Learning 
 
 An interactive language learning application that uses AI-generated scene-based dialogues to help users practice real-world conversations.
@@ -20,6 +21,7 @@ This project combines practical scenario-based learning with AI technology to cr
 ![Prisma](https://img.shields.io/badge/Prisma-2D3748?style=for-the-badge&logo=prisma&logoColor=white)
 ![MySQL](https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white)
 ![OpenAI](https://img.shields.io/badge/OpenAI-412991?style=for-the-badge&logo=openai&logoColor=white)
+
 
 ## License
 
