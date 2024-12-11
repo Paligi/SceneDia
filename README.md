@@ -1,4 +1,4 @@
-# Scene Dialogue Language Learning <img src="assets/logo.png" width="40">
+# <img src="assets/icon.png" width="40"> Scene Dialogue Language Learning 
 
 An interactive language learning application that uses AI-generated scene-based dialogues to help users practice real-world conversations.
 
