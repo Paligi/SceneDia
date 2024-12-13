@@ -22,6 +22,7 @@ export function DialogueSimulation({ scenario, onComplete }: DialogueSimulationP
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
+  const [startTime, setStartTime] = useState(0);
 
   useEffect(() => {
     return () => {
@@ -233,7 +234,7 @@ export function DialogueSimulation({ scenario, onComplete }: DialogueSimulationP
           messages: [
             {
               role: 'system',
-              content: '你是一个英语口语教练。请用��文对学生的口表现进行评估，指出优点和需要改进的地方。'
+              content: '你是一个英语口语教练。请用中文对学生的口表现进行评估，指出优点和需要改进的地方。'
             },
             {
               role: 'user',
@@ -249,6 +250,23 @@ export function DialogueSimulation({ scenario, onComplete }: DialogueSimulationP
       onComplete(feedbackText);
     } catch (error) {
       console.error('Error getting feedback:', error);
+    }
+
+    // 保存练习记录
+    try {
+      await fetch('/api/practice-records', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          scenarioId: scenario,
+          duration: Math.floor((Date.now() - startTime) / 1000),
+          feedback: feedback,
+        }),
+      });
+    } catch (error) {
+      console.error('Error saving practice record:', error);
     }
   };
 

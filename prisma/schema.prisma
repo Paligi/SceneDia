@@ -20,4 +20,18 @@ model User {
   name      String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  practiceRecords PracticeRecord[]
+}
+
+model PracticeRecord {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  scenarioId String
+  duration  Int      // 练习时长（秒）
+  score     Int?     // 可选的评分
+  feedback  String?  // 反馈内容
+  createdAt DateTime @default(now())
+
+  @@index([userId])
 }
