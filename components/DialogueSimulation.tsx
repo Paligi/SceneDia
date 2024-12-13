@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import Button from "@/components/ui/Button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
@@ -23,6 +23,18 @@ export function DialogueSimulation({ scenario, onComplete }: DialogueSimulationP
   const streamRef = useRef<MediaStream | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
 
+  useEffect(() => {
+    return () => {
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
+        mediaRecorderRef.current.stop();
+      }
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+        streamRef.current = null;
+      }
+    };
+  }, []);
+
   const startSimulation = async () => {
     setConversation([]);
     
@@ -35,13 +47,22 @@ export function DialogueSimulation({ scenario, onComplete }: DialogueSimulationP
 
     // 添加并播放初始消息
     await addAssistantMessage(initialMessage);
-    
-    // 设置录音状态为 true，允许用户开始录音
-    setIsRecording(true);
   };
 
   const startRecording = async () => {
     try {
+      // 确保在开始新录音前清理之前的资源
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => {
+          track.stop();
+          track.enabled = false;
+        });
+        streamRef.current = null;
+      }
+      if (mediaRecorderRef.current) {
+        mediaRecorderRef.current = null;
+      }
+
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       streamRef.current = stream;
       const mediaRecorder = new MediaRecorder(stream);
@@ -63,6 +84,17 @@ export function DialogueSimulation({ scenario, onComplete }: DialogueSimulationP
           audioUrl
         }]);
 
+        // 立即停止并清理所有媒体资源
+        if (streamRef.current) {
+          streamRef.current.getTracks().forEach(track => {
+            track.stop();
+            track.enabled = false;
+          });
+          streamRef.current = null;
+        }
+        mediaRecorderRef.current = null;
+        setIsRecording(false);  // 确保在这里也设置录音状态为 false
+
         await processUserResponse(audioBlob);
       };
 
@@ -70,17 +102,23 @@ export function DialogueSimulation({ scenario, onComplete }: DialogueSimulationP
       setIsRecording(true);
     } catch (error) {
       console.error('Error accessing microphone:', error);
+      setIsRecording(false);  // 确保在错误时也设置状态为 false
     }
   };
 
   const stopRecording = () => {
     if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
       mediaRecorderRef.current.stop();
+      mediaRecorderRef.current = null;
     }
     if (streamRef.current) {
-      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current.getTracks().forEach(track => {
+        track.stop();
+        track.enabled = false;
+      });
       streamRef.current = null;
     }
+    audioChunksRef.current = [];
     setIsRecording(false);
   };
 
@@ -195,7 +233,7 @@ export function DialogueSimulation({ scenario, onComplete }: DialogueSimulationP
           messages: [
             {
               role: 'system',
-              content: '你是一个英语口语教练。请用中文对学生的口表现进行评估，指出优点和需要改进的地方。'
+              content: '你是一个英语口语教练。请用��文对学生的口表现进行评估，指出优点和需要改进的地方。'
             },
             {
               role: 'user',
