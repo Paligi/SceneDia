@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import Button from "../components/ui/Button"
 
 interface SpeechComponentProps {
@@ -12,6 +12,24 @@ export function SpeechComponent({ text, onRecordingComplete }: SpeechComponentPr
   const [isRecording, setIsRecording] = useState(false);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+  const audioChunksRef = useRef<Blob[]>([]);
+
+  useEffect(() => {
+    return () => {
+      stopMediaTracks();
+    };
+  }, []);
+
+  const stopMediaTracks = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => {
+        track.stop();
+        track.enabled = false;
+      });
+      streamRef.current = null;
+    }
+  };
 
   const speak = () => {
     const utterance = new SpeechSynthesisUtterance(text);
@@ -19,45 +37,67 @@ export function SpeechComponent({ text, onRecordingComplete }: SpeechComponentPr
   };
 
   const startRecording = () => {
+    audioChunksRef.current = [];
+    
     navigator.mediaDevices.getUserMedia({ audio: true })
       .then(stream => {
+        streamRef.current = stream;
         const mediaRecorder = new MediaRecorder(stream);
         mediaRecorderRef.current = mediaRecorder;
-        const audioChunks: Blob[] = [];
 
+        mediaRecorder.start(100);
+        
         mediaRecorder.addEventListener("dataavailable", event => {
-          audioChunks.push(event.data);
+          audioChunksRef.current.push(event.data);
         });
 
         mediaRecorder.addEventListener("stop", () => {
-          const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
-          const audioUrl = URL.createObjectURL(audioBlob);
-          setAudioUrl(audioUrl);
-
-          const recognition = new (window as any).webkitSpeechRecognition();
-          recognition.lang = 'en-US';
-          recognition.onresult = (event: any) => {
-            const transcript = event.results[0][0].transcript;
-            onRecordingComplete(transcript, audioUrl);
-          };
-          recognition.start();
+          processRecording();
         });
 
-        mediaRecorder.start();
         setIsRecording(true);
 
         setTimeout(() => {
-          mediaRecorder.stop();
-          setIsRecording(false);
-        }, 30000); // 30 seconds
+          stopRecording();
+        }, 30000);
+      })
+      .catch(error => {
+        console.error('Error accessing microphone:', error);
+        setIsRecording(false);
       });
   };
 
+  const processRecording = () => {
+    const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/wav' });
+    const audioUrl = URL.createObjectURL(audioBlob);
+    setAudioUrl(audioUrl);
+
+    const recognition = new (window as any).webkitSpeechRecognition();
+    recognition.lang = 'en-US';
+    recognition.onresult = (event: any) => {
+      const transcript = event.results[0][0].transcript;
+      onRecordingComplete(transcript, audioUrl);
+    };
+    recognition.start();
+  };
+
   const stopRecording = () => {
-    if (mediaRecorderRef.current) {
+    setIsRecording(false);
+
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
       mediaRecorderRef.current.stop();
-      setIsRecording(false);
+      mediaRecorderRef.current = null;
     }
+
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => {
+        track.stop();
+        track.enabled = false;
+      });
+      streamRef.current = null;
+    }
+
+    audioChunksRef.current = [];
   };
 
   return (
